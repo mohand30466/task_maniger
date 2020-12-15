@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const validator = require('validator')
 
 
 mongoose.connect('mongodb://127.0.0.1:27017/task_managerApi',{
@@ -8,10 +9,13 @@ mongoose.connect('mongodb://127.0.0.1:27017/task_managerApi',{
 const Task = mongoose.model('task',{
     description:{
         type:String,
+        trim:true,
+        require:true
         
     },
     completed:{
-        type:Boolean
+        type:Boolean,
+        default:false
     }
 })
 
@@ -35,28 +39,48 @@ const User = mongoose.model('User',{
         required:true
     },
     age:{
-        type:Number
+        type:Number,
+        validate(value){
+            if(value < 0){
+                throw new Error("the age must be more than posotive Number");
+            }
+        },
+        trim:true,
     },
     email:{
         type:String,
-        required:true
+        required:true,
+        trim:true,
+        lowercase:true,
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error(" invalid email ")
+            }
+        }
+        
     },
     password:{
         type:String,
-        required:true
+        required:true,
+        trim:true,
+        validate(value){
+            if(value.includes('password')){
+                throw new Error("you have to write your password")
+            }
+        }
     }
 
 })
 
 const me = new User({
     name:"mohand",
-    age:88,
-    email:"moji@io.com"
+    age:8,
+    email:"moji@"
     ,password:"12345a"
 
     
 })
-  me.save().then((result) => {
+  me.save().then(() => {
   
     console.log(me);
     
