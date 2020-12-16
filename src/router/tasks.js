@@ -67,13 +67,13 @@ router.post("/task",async (req, res) => {
       const update = Object.keys(req.body)
      const allowedupdate = ["name","email","address","age"]
      const isallowed = update.every((update)=>{
-         return update.includes(allowedupdate)
+         return allowedupdate.includes(update)
      })
      if(!isallowed){
          res.status(404).send("invalid key update")
      }
      try {
-      const user = await User.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
+      const user = await Task.findByIdAndUpdate(req.params.id,req.body,{new:true,runValidators:true})
       if(!user){
           return res.status(404).send()
       }
