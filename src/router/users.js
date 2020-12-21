@@ -27,7 +27,7 @@ router.post("/users/login", async (req, res) => {
       req.body.password
     );
     const token = await user.generateAuthToken();
-    
+
     res.send({ user, token });
   } catch (e) {
     res.status().send("unable to log in");
@@ -71,34 +71,18 @@ router.get("/users", async (req, res) => {
   }
 });
 
-router.get("/users/:id", async (req, res) => {
-  const _id = req.params.id;
+router.delete("/users/me", auth, async (req, res) => {
   try {
-    const user = await User.findById(_id);
-    if (!user) {
-      res.status(500).send();
-    }
-    res.send(user);
+    await req.user.remove();
+    res.send(req.user);
   } catch (error) {
     res.status(500).send();
   }
 });
 
-router.delete("/users/:id", async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      res.status(404).send();
-    }
-    res.send(user);
-  } catch (error) {
-    res.status(500).send();
-  }
-});
-
-router.patch("/users/:id", async (req, res) => {
+router.patch("/users/me",auth, async (req, res) => {
   const update = Object.keys(req.body);
-  const allowedupdate = ["name", "email", "address", "age"];
+  const allowedupdate = ["name", "email", "age"];
   const isallowed = update.every((update) => {
     return allowedupdate.includes(update);
   });
@@ -106,13 +90,10 @@ router.patch("/users/:id", async (req, res) => {
     res.status(404).send("invalid key update");
   }
   try {
-    const user = await User.findByIdAndUpdate(req.params.id);
-    update.forEach((el) => (user[el] = req.body[el]));
-    await user.save();
-    if (!user) {
-      return res.status(404).send();
-    }
-    res.send(user);
+    update.forEach((el) => (req.user[el] = req.body[el]));
+    await req.user.save();
+  
+    res.send(req.user);
   } catch (error) {
     res.status(404).send();
   }
