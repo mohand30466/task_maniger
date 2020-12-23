@@ -5,7 +5,6 @@ const User = require("../model/user")
 const auth = async (req,res,next)=>{
 try {
     const token = await req.header('authorization').replace('Bearer ','')
-    console.log(token);
     const coded = jwt.verify(token,'thisismynodejscourse')
     const user = await User.findOne({_id:coded._id,"tokens.token":token})
 
